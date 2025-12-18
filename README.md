@@ -4,13 +4,14 @@ Apache Maven 3.9.11
 Утилита фильтрации содержимого файлов.
 
 Утилита фильтрует содержимое указанных файлов в формате .txt и записывает их отдельные файлы.
+
 Строки -> strings.txt\
 Целые числа -> integers.txt\
 Числа с плавающей точкой -> floats.txt
 
 Инструкция по запуску:
 
-java -jar util.jar -p {prefix-name} -o {path} -s -f -a {file-name}.txt
+    java -jar util.jar -p {prefix-name} -o {path} -s -f -a {file-name}.txt
 
 Обязательно указать входной файл, так же есть 5 необязательных опций
 
