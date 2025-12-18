@@ -8,10 +8,14 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
+import static org.example.DataPatternRegex.isFloat;
+import static org.example.DataPatternRegex.isInteger;
+import static org.example.DataPatternRegex.isString;
+
 public class Writer {
+
     private static final String STRING_FILE = "strings";
     private static final String INTEGER_FILE = "integers";
     private static final String FLOAT_FILE = "floats";
@@ -20,7 +24,7 @@ public class Writer {
     private static final IntegerData integerData = new IntegerData();
     private static final StringData stringData = new StringData();
 
-    public static void write(FileProperty fileProperty, List<Path> pathFiles) throws IOException {
+    public static void write(FileProperty fileProperty, List<String> pathFiles) throws IOException {
         BufferedWriter stringsWriter = null;
         BufferedWriter integersWriter = null;
         BufferedWriter floatsWriter = null;
@@ -32,37 +36,32 @@ public class Writer {
         }
         output += fileProperty.getPrefixName();
 
-
-
-        for (Path path : pathFiles) {
+        for (String path : pathFiles) {
             boolean appendMode = fileProperty.isAppendMode();
 
-            try (Scanner scanner = new Scanner(new File(path.toUri()))) {
-                scanner.useLocale(Locale.ENGLISH);
+            try (Scanner scanner = new Scanner(new File(path))) {
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
 
-                while (scanner.hasNext()) {
-                    if (scanner.hasNextLong()) {
-                        String line = scanner.nextLine();
-                        integersWriter = getOrCreateWriter(integersWriter, output + INTEGER_FILE, appendMode);
-                        integersWriter.write(line);
-                        integersWriter.newLine();
-                        integerData.collect(Long.parseLong(line));
-                    } else if (scanner.hasNextDouble()) {
-                        String line = scanner.nextLine();
-                        floatsWriter = getOrCreateWriter(floatsWriter, output + FLOAT_FILE, appendMode);
-                        floatsWriter.write(line);
-                        floatsWriter.newLine();
-                        floatData.collect(Double.parseDouble(line));
-                    } else if (scanner.hasNext()) {
-                        String line = scanner.nextLine();
+                    if (isString(line)) {
                         stringsWriter = getOrCreateWriter(stringsWriter, output + STRING_FILE, appendMode);
                         stringsWriter.write(line);
                         stringsWriter.newLine();
                         stringData.collect(line);
+                    } else if (isInteger(line)) {
+                        integersWriter = getOrCreateWriter(integersWriter, output + INTEGER_FILE, appendMode);
+                        integersWriter.write(line);
+                        integersWriter.newLine();
+                        integerData.collect(Long.parseLong(line));
+                    } else if (isFloat(line)) {
+                        floatsWriter = getOrCreateWriter(floatsWriter, output + FLOAT_FILE, appendMode);
+                        floatsWriter.write(line);
+                        floatsWriter.newLine();
+                        floatData.collect(Double.parseDouble(line));
                     }
                 }
-            } catch (FileNotFoundException e) {
-                System.out.printf("File not found: %s%n", e);
+            } catch (IOException e) {
+                System.out.println("Error: " + e);
             }
         }
 
@@ -70,16 +69,7 @@ public class Writer {
         closeIfNotNull(floatsWriter);
         closeIfNotNull(stringsWriter);
 
-        if (fileProperty.isShortStats()) {
-            System.out.printf("Total numbers of elements: %d%n",
-                    integerData.getCount() + floatData.getCount() + stringData.getCount());
-        }
-
-        if (fileProperty.isFullStats()) {
-            integerData.dropStats();
-            floatData.dropStats();
-            stringData.dropStats();
-        }
+        printStatistics(fileProperty);
     }
 
     private static void closeIfNotNull(BufferedWriter writer) throws IOException {
@@ -95,5 +85,18 @@ public class Writer {
         }
 
         return writer;
+    }
+
+    private static void printStatistics(FileProperty fileProperty) {
+        if (fileProperty.isShortStats()) {
+            System.out.printf("Total numbers of elements: %d%n",
+                    integerData.getCount() + floatData.getCount() + stringData.getCount());
+        }
+
+        if (fileProperty.isFullStats()) {
+            integerData.dropStats();
+            floatData.dropStats();
+            stringData.dropStats();
+        }
     }
 }

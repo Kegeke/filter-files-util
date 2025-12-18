@@ -1,20 +1,18 @@
 package org.example;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        List<Path> pathFiles = new ArrayList<>();
+        List<String> pathFiles = new ArrayList<>();
         FileProperty fileProperty = new FileProperty();
 
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
 
             if (arg.endsWith(".txt")) {
-                pathFiles.add(Paths.get(arg));
+                pathFiles.add(arg);
                 continue;
             }
 
