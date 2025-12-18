@@ -16,9 +16,9 @@ import static org.example.DataPatternRegex.isString;
 
 public class Writer {
 
-    private static final String STRING_FILE = "strings";
-    private static final String INTEGER_FILE = "integers";
-    private static final String FLOAT_FILE = "floats";
+    private static final String STRING_FILE = "strings.txt";
+    private static final String INTEGER_FILE = "integers.txt";
+    private static final String FLOAT_FILE = "floats.txt";
 
     private static final FloatData floatData = new FloatData();
     private static final IntegerData integerData = new IntegerData();
